@@ -41,16 +41,36 @@ struct UserProfile: Codable, Identifiable {
     var existingSavings: Double
     var notes: String
 
-    init(id: UUID = UUID(), currency: String = "USD", employmentStatus: EmploymentStatus = .unemployed,
-         monthlyIncome: Double = 0, otherIncome: [Money] = [], existingSavings: Double = 0) {
+    // Additional editable profile factors
+    var riskTolerance: String          // conservative / moderate / aggressive
+    var investmentExperience: String   // beginner / intermediate / advanced
+    var dependents: Int
+    var maritalStatus: String?         // single / partnered / married / divorced / widowed
+    var housingStatus: String?         // rent / own / with-family / other
+    var debtComfortLevel: String       // low / medium / high
+    var savingsTargetPercent: Double   // target % of income to save each month
+
+    init(id: UUID = UUID(), age: Int? = nil, country: String? = nil, currency: String = "USD",
+         employmentStatus: EmploymentStatus = .unemployed, monthlyIncome: Double = 0,
+         otherIncome: [Money] = [], existingSavings: Double = 0,
+         riskTolerance: String = "moderate", investmentExperience: String = "beginner",
+         dependents: Int = 0, maritalStatus: String? = nil, housingStatus: String? = nil,
+         debtComfortLevel: String = "medium", savingsTargetPercent: Double = 20) {
         self.id = id
-        self.age = nil
-        self.country = nil
+        self.age = age
+        self.country = country
         self.currency = currency
         self.employmentStatus = employmentStatus
         self.monthlyIncome = monthlyIncome
         self.otherIncome = otherIncome
         self.existingSavings = existingSavings
+        self.riskTolerance = riskTolerance
+        self.investmentExperience = investmentExperience
+        self.dependents = dependents
+        self.maritalStatus = maritalStatus
+        self.housingStatus = housingStatus
+        self.debtComfortLevel = debtComfortLevel
+        self.savingsTargetPercent = savingsTargetPercent
     }
 
     var totalMonthlyIncome: Double {

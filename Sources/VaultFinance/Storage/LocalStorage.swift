@@ -19,6 +19,8 @@ class LocalStorage: ObservableObject {
     @Published var lessons: [Lesson] = []
     @Published var achievements: [Achievement] = []
     @Published var healthScores: [FinancialHealthScore] = []
+    @Published var spendingDays: [SpendingDay] = []
+    @Published var spendingStreak: SpendingStreak = .init()
 
     private var isSetup: Bool { keychainService.hasKey(forKey: LocalStorage.hasSetupKey) }
 
@@ -63,7 +65,8 @@ class LocalStorage: ObservableObject {
         let data = VaultData(
             profile: profile, goals: goals, categories: categories,
             transactions: transactions, assets: assets, liabilities: liabilities,
-            lessons: lessons, achievements: achievements, healthScores: healthScores
+            lessons: lessons, achievements: achievements, healthScores: healthScores,
+            spendingDays: spendingDays, spendingStreak: spendingStreak
         )
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(data) else { return }
@@ -90,6 +93,22 @@ class LocalStorage: ObservableObject {
         lessons = decoded.lessons
         achievements = decoded.achievements
         healthScores = decoded.healthScores
+        spendingDays = decoded.spendingDays
+        spendingStreak = decoded.spendingStreak
+    }
+
+    /// Record spending for a day and recompute the streak.
+    func recordSpending(date: Date, amount: Double, category: CategoryType, notes: String = "") {
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        if let index = spendingDays.firstIndex(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
+            spendingDays[index].amount += amount
+            spendingDays[index].transactionCount += 1
+            spendingDays[index].notes = notes
+        } else {
+            spendingDays.append(SpendingDay(date: startOfDay, amount: amount, transactionCount: 1, goalMet: amount <= spendingStreak.dailyGoal, notes: notes))
+        }
+        spendingStreak = SpendingStreak.compute(from: spendingDays, dailyGoal: spendingStreak.dailyGoal)
+        save()
     }
 }
 

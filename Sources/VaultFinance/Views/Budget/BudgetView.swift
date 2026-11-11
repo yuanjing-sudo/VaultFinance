@@ -2,6 +2,7 @@ import SwiftUI
 
 struct BudgetView: View {
     @EnvironmentObject var storage: LocalStorage
+    @EnvironmentObject var router: AppRouter
     @State private var searchText = ""
     @State private var showAddCategory = false
     @State private var showProfile = false
@@ -34,6 +35,15 @@ struct BudgetView: View {
         }
         .navigationTitle("Budget")
         .toolbar { toolbarContent }
+        // Deep navigation: tapping a category drills into its detail, deepening breadcrumbs.
+        .navigationDestination(for: Route.self) { route in
+            switch route {
+            case .categoryDetail(let category):
+                CategoryDetailView(category: category)
+            default:
+                EmptyView()
+            }
+        }
     }
 
     private var header: some View {
@@ -76,6 +86,10 @@ struct BudgetView: View {
     private var categoryList: some View {
         List(filteredCategories) { category in
             CategoryRow(category: category)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    router.push(.categoryDetail(category))
+                }
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button(role: .destructive) {
                         withAnimation {
