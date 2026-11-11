@@ -17,6 +17,11 @@ enum Route: Hashable {
     case calendar
     case news
     case indicators
+    case piggyBank
+    case analytics
+    case bills
+    case subscriptions
+    case reports
     case profile
     case profileEdit
     case settings
@@ -35,6 +40,11 @@ enum Route: Hashable {
         case .calendar: return "Spending Calendar"
         case .news: return "News"
         case .indicators: return "Indicators"
+        case .piggyBank: return "Piggy Bank"
+        case .analytics: return "Analytics"
+        case .bills: return "Bills"
+        case .subscriptions: return "Subscriptions"
+        case .reports: return "Reports"
         case .profile: return "Profile"
         case .profileEdit: return "Edit Profile"
         case .settings: return "Settings"
@@ -55,6 +65,11 @@ enum Route: Hashable {
         case .calendar: return "calendar"
         case .news: return "newspaper.fill"
         case .indicators: return "gauge"
+        case .piggyBank: return "pawprint.fill"
+        case .analytics: return "chart.pie.fill"
+        case .bills: return "doc.fill"
+        case .subscriptions: return "eyes"
+        case .reports: return "chart.bar.doc.horizontal"
         case .profile: return "person.fill"
         case .profileEdit: return "person.crop.circle.badge.gearshape"
         case .settings: return "gear"
@@ -72,6 +87,11 @@ enum Route: Hashable {
         case .calendar: return .calendar
         case .news: return .news
         case .indicators: return .indicators
+        case .piggyBank: return .piggyBank
+        case .analytics: return .analytics
+        case .bills: return .bills
+        case .subscriptions: return .subscriptions
+        case .reports: return .reports
         case .profile, .profileEdit: return .profile
         case .settings: return .settings
         }

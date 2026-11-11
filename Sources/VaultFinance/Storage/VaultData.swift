@@ -16,6 +16,10 @@ struct VaultData: Codable {
     var healthScores: [FinancialHealthScore]
     var spendingDays: [SpendingDay]
     var spendingStreak: SpendingStreak
+    var piggyBank: PiggyBank
+    var piggyDeposits: [PiggyDeposit]
+    var bills: [Bill]
+    var subscriptions: [Subscription]
 
     init(
         profile: UserProfile,
@@ -28,7 +32,11 @@ struct VaultData: Codable {
         achievements: [Achievement] = [],
         healthScores: [FinancialHealthScore] = [],
         spendingDays: [SpendingDay] = [],
-        spendingStreak: SpendingStreak = .init()
+        spendingStreak: SpendingStreak = .init(),
+        piggyBank: PiggyBank = .init(),
+        piggyDeposits: [PiggyDeposit] = [],
+        bills: [Bill] = [],
+        subscriptions: [Subscription] = []
     ) {
         self.profile = profile
         self.goals = goals
@@ -41,5 +49,9 @@ struct VaultData: Codable {
         self.healthScores = healthScores
         self.spendingDays = spendingDays
         self.spendingStreak = spendingStreak
+        self.piggyBank = piggyBank
+        self.piggyDeposits = piggyDeposits
+        self.bills = bills
+        self.subscriptions = subscriptions
     }
 }

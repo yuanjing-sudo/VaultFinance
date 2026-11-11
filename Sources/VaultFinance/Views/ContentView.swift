@@ -76,6 +76,16 @@ struct ContentView: View {
             NewsFeedView()
         case .indicators:
             FinancialIndicatorsView()
+        case .piggyBank:
+            PiggyBankView()
+        case .analytics:
+            DetailedAnalyticsView()
+        case .bills:
+            BillsView()
+        case .subscriptions:
+            SubscriptionsView()
+        case .reports:
+            ReportsView()
         case .profile:
             ProfileView()
         case .settings:

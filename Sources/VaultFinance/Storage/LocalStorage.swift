@@ -21,6 +21,10 @@ class LocalStorage: ObservableObject {
     @Published var healthScores: [FinancialHealthScore] = []
     @Published var spendingDays: [SpendingDay] = []
     @Published var spendingStreak: SpendingStreak = .init()
+    @Published var piggyBank: PiggyBank = .init()
+    @Published var piggyDeposits: [PiggyDeposit] = []
+    @Published var bills: [Bill] = []
+    @Published var subscriptions: [Subscription] = []
 
     private var isSetup: Bool { keychainService.hasKey(forKey: LocalStorage.hasSetupKey) }
 
@@ -66,7 +70,9 @@ class LocalStorage: ObservableObject {
             profile: profile, goals: goals, categories: categories,
             transactions: transactions, assets: assets, liabilities: liabilities,
             lessons: lessons, achievements: achievements, healthScores: healthScores,
-            spendingDays: spendingDays, spendingStreak: spendingStreak
+            spendingDays: spendingDays, spendingStreak: spendingStreak,
+            piggyBank: piggyBank, piggyDeposits: piggyDeposits,
+            bills: bills, subscriptions: subscriptions
         )
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(data) else { return }
@@ -95,6 +101,10 @@ class LocalStorage: ObservableObject {
         healthScores = decoded.healthScores
         spendingDays = decoded.spendingDays
         spendingStreak = decoded.spendingStreak
+        piggyBank = decoded.piggyBank
+        piggyDeposits = decoded.piggyDeposits
+        bills = decoded.bills
+        subscriptions = decoded.subscriptions
     }
 
     /// Record spending for a day and recompute the streak.
@@ -209,6 +219,32 @@ extension VaultData {
                     ],
                     recommendation: "Good health with room to improve. Focus on your weakest area."
                 )
+            ],
+            piggyBank: .init(
+                name: "Vault Piggy",
+                targetAmount: 5000,
+                depositedAmount: 1250,
+                currency: "USD",
+                personality: .classic,
+                colorTheme: "#F5A623"
+            ),
+            piggyDeposits: [
+                .init(piggyId: UUID(), amount: 500, date: Calendar.current.date(byAdding: .day, value: -10, to: now)!, note: "Paycheck savings", source: .manual),
+                .init(piggyId: UUID(), amount: 300, date: Calendar.current.date(byAdding: .day, value: -5, to: now)!, note: "Budget rollover", source: .budgetRollover),
+                .init(piggyId: UUID(), amount: 200, date: Calendar.current.date(byAdding: .day, value: -2, to: now)!, note: "Round up", source: .roundUp),
+                .init(piggyId: UUID(), amount: 250, date: now, note: "Bonus", source: .manual),
+            ],
+            bills: [
+                .init(title: "Electricity", amount: 120, frequency: .monthly, nextDueDate: Calendar.current.date(byAdding: .day, value: 5, to: now)!, status: .upcoming, category: "Utilities", autoPay: true),
+                .init(title: "Internet", amount: 60, frequency: .monthly, nextDueDate: Calendar.current.date(byAdding: .day, value: 12, to: now)!, status: .upcoming, category: "Utilities", autoPay: false),
+                .init(title: "Car Insurance", amount: 150, frequency: .monthly, nextDueDate: Calendar.current.date(byAdding: .day, value: -2, to: now)!, status: .overdue, category: "Transport", autoPay: false),
+                .init(title: "Phone Bill", amount: 80, frequency: .monthly, nextDueDate: Calendar.current.date(byAdding: .day, value: 20, to: now)!, status: .upcoming, category: "Utilities", autoPay: true),
+            ],
+            subscriptions: [
+                .init(title: "Netflix", amount: 15.99, cycle: .monthly, nextBillingDate: Calendar.current.date(byAdding: .day, value: 3, to: now)!, category: "Entertainment", isActive: true),
+                .init(title: "Spotify", amount: 9.99, cycle: .monthly, nextBillingDate: Calendar.current.date(byAdding: .day, value: 10, to: now)!, category: "Entertainment", isActive: true),
+                .init(title: "Gym Membership", amount: 49.99, cycle: .monthly, nextBillingDate: Calendar.current.date(byAdding: .day, value: 15, to: now)!, category: "Health", isActive: true),
+                .init(title: "iCloud Storage", amount: 2.99, cycle: .monthly, nextBillingDate: Calendar.current.date(byAdding: .day, value: 25, to: now)!, category: "Utilities", isActive: true),
             ]
         )
     }
