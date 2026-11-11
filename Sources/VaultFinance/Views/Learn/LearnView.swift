@@ -160,13 +160,14 @@ struct AchievementCard: View {
         HStack {
             Image(systemName: achievement.icon)
                 .font(.title2)
-                .foregroundColor(achievement.unlocked ? .amber : .gray)
+                .foregroundColor(achievement.unlocked ? .orange : .gray)
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(achievement.title).font(.subheadline).bold()
                     Spacer()
                     if achievement.unlocked {
-                        Text("Unlocked \(achievement.unlockedAt, style: .relative) ago").font(.caption).foregroundColor(.secondary)
+                        let unlockedAt = achievement.unlockedAt ?? Date()
+                        Text("Unlocked \(unlockedAt, style: .relative) ago").font(.caption).foregroundColor(.secondary)
                     } else {
                         Text("Locked").font(.caption).foregroundColor(.secondary)
                     }

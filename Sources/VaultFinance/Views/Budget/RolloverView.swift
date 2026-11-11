@@ -13,14 +13,14 @@ struct RolloverView: View {
                     EmptyState(message: "No carryover from previous month.")
                 } else {
                     List {
-                        ForEach(viewModel.carryoverItems) { item in
+                        ForEach(viewModel.carryoverItems, id: \.id) { item in
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Text(item.title).bold()
                                     Spacer()
-                                    Text(item.amount.formattedAmount).bold().foregroundColor(.green)
+                                    Text(item.amount.formatted()).bold().foregroundColor(.green)
                                 }
-                                Text(item.direction.localizedDescription).font(.caption).foregroundColor(.secondary)
+                                Text(item.direction.localized).font(.caption).foregroundColor(.secondary)
                                 HStack(spacing: 8) {
                                     Button("Keep Carryover") {
                                         viewModel.keepItem(item)

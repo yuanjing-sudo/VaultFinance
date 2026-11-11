@@ -107,8 +107,6 @@ struct AIView: View {
 
     @available(iOS 18.0, *)
     private func processQuery(_ query: String, capability: AICapability) async -> String {
-        let lower = query.lowercased()
-
         switch capability {
         case .budgeting:
             return await handleBudgeting(query)
@@ -246,7 +244,7 @@ struct MessageBubble: View {
                     .frame(width: 24)
             }
         }
-        .frame(maxWidth: .leading, alignment: message.role == .assistant ? .leading : .trailing)
+        .frame(maxWidth: .infinity, alignment: message.role == .assistant ? .leading : .trailing)
     }
 }
 

@@ -40,7 +40,7 @@ struct AssetRowView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Image(systemName: asset.category.iconName)
-                    .foregroundColor(.init(colorLiteral: assetCategoryColor(asset.category)))
+                    .foregroundColor(Color(assetCategoryColor(asset.category)))
                 Text(asset.title).font(.subheadline).bold()
                 Spacer()
                 VStack(alignment: .trailing) {
@@ -72,6 +72,7 @@ struct AssetRowView: View {
 
 struct AddAssetView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var storage: LocalStorage
     @State private var title = ""
     @State private var category: AssetCategory = .cash
     @State private var quantity: Double = 1

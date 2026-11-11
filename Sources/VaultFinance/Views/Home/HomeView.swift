@@ -1,23 +1,46 @@
 import SwiftUI
-import VaultFinance_Navigation
 
 struct HomeView: View {
     @EnvironmentObject var storage: LocalStorage
     @EnvironmentObject var aiService: AIService
     @EnvironmentObject var navigation: NavigationModel
+    @State private var aiInsight: String = "Analyzing your cash flow..."
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 header
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 netWorthCard
+                    .transition(.scale.combined(with: .opacity))
                 budgetOverview
+                    .transition(.opacity.combined(with: .move(edge: .leading)))
                 savingsGoals
+                    .transition(.opacity.combined(with: .move(edge: .trailing)))
                 recentTransactions
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 dailyLearning
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 aiInsights
+                    .transition(.scale.combined(with: .opacity))
             }
             .padding()
+        }
+        .onAppear {
+            Task {
+                await refreshAIInsight()
+            }
+        }
+    }
+
+    private func refreshAIInsight() async {
+        let summary = AIService.shared.generateDailySummary(
+            profile: storage.profile,
+            categories: storage.categories,
+            transactions: storage.transactions
+        )
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+            aiInsight = summary
         }
     }
 
@@ -61,7 +84,7 @@ struct HomeView: View {
             .font(.title)
             .bold()
             Rectangle()
-                .fill(Color(.systemGray5))
+                .fill(Color.gray.opacity(0.12))
                 .frame(height: 1)
             HStack {
                 StatCard(label: "Income", value: Money(amount: storage.profile.totalMonthlyIncome).formatted(), trend: "+2.1%", positive: true)
@@ -70,7 +93,7 @@ struct HomeView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(16)
     }
 
@@ -87,7 +110,7 @@ struct HomeView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(16)
     }
 
@@ -97,13 +120,13 @@ struct HomeView: View {
                 Text("Savings Goals").bold().font(.headline)
                 Button("View All") { }
             }
-            ForEach(storage.goals) { goal in
+            ForEach(storage.goals, id: \.id) { goal in
                 GoalCard(goal: goal)
             }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(16)
     }
 
@@ -119,7 +142,7 @@ struct HomeView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(16)
     }
 
@@ -138,25 +161,45 @@ struct HomeView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(16)
     }
 
     private var aiInsights: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             HStack {
                 Text("AI Insights").bold().font(.headline)
                 Spacer()
                 Image(systemName: "sparkles")
                     .foregroundColor(.blue)
             }
-            Text("Your food spending is 8% above your monthly average. Consider tracking receipts more closely.")
+            Text(aiInsight)
                 .font(.subheadline)
+                .foregroundColor(.primary)
+            HStack(spacing: 8) {
+                Label("Cash flow", systemImage: "chart.line.uptrend.xyaxis")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Label("Auto-checked", systemImage: "checkmark.shield.fill")
+                    .font(.caption)
+                    .foregroundColor(.green)
+            }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(
+            LinearGradient(
+                colors: [Color.blue.opacity(0.12), Color.purple.opacity(0.08)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.blue.opacity(0.22), lineWidth: 1)
+        )
     }
 }
 
@@ -176,7 +219,7 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.systemGray5))
+        .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
     }
 }
@@ -195,11 +238,11 @@ struct BudgetBar: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color(.systemGray4))
+                        .fill(Color.gray.opacity(0.2))
                         .frame(height: 8)
                         .cornerRadius(4)
                     Rectangle()
-                        .fill(category.color == "red" ? Color.red : category.color == "orange" ? Color.orange : category.color == "purple" ? Color.purple : Color.green)
+                        .fill(category.type.color == "red" ? Color.red : category.type.color == "orange" ? Color.orange : category.type.color == "purple" ? Color.purple : Color.green)
                         .frame(width: min(geo.size.width * (category.percentUsed / 100), geo.size.width))
                         .frame(height: 8)
                         .cornerRadius(4)
@@ -226,7 +269,7 @@ struct GoalCard: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color(.systemGray4))
+                        .fill(Color.gray.opacity(0.2))
                         .frame(height: 8)
                         .cornerRadius(4)
                     Rectangle()
@@ -245,7 +288,7 @@ struct GoalCard: View {
             }
         }
         .padding()
-        .background(Color(.systemGray5))
+        .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
     }
 }
@@ -263,12 +306,12 @@ struct TransactionRow: View {
                 Text(transaction.date, style: .date).font(.caption).foregroundColor(.secondary)
             }
             Spacer()
-            Text(transaction.amount < 0 ? "+\(transaction.amount.formattedAmount)" : "-\(transaction.amount.formattedAmount)")
+            Text(transaction.amount < 0 ? "+\(transaction.formattedAmount)" : "-\(transaction.formattedAmount)")
                 .font(.subheadline)
                 .bold()
         }
         .padding()
-        .background(Color(.systemGray5))
+        .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
     }
 }
@@ -288,7 +331,7 @@ struct LessonCard: View {
             Text("\(lesson.xp) XP").font(.caption).bold().foregroundColor(.blue)
         }
         .padding()
-        .background(Color(.systemGray5))
+        .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
     }
 }

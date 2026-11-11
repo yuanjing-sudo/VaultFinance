@@ -32,7 +32,7 @@ struct BreadcrumbsView: View {
                 .padding(.horizontal)
             }
             .frame(height: 34)
-            .background(Color(.systemBackground))
+            .background(Color(white: 0.97))
         )
     }
 }
@@ -54,7 +54,7 @@ struct BreadcrumbChip: View {
             .foregroundColor(isCurrent ? .blue : .secondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
-            .background(isCurrent ? Color.blue.opacity(0.1) : Color(.systemGray5))
+            .background(isCurrent ? Color.blue.opacity(0.1) : Color.gray.opacity(0.12))
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())

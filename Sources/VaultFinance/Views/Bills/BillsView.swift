@@ -84,7 +84,7 @@ struct BillsView: View {
             .padding()
         }
         .navigationTitle("Bills")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .sheet(isPresented: $showingAddBill) {
             AddBillView()
         }
@@ -121,7 +121,7 @@ struct BillStatCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
     }
 }
@@ -180,7 +180,7 @@ struct BillRow: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
     }
@@ -235,7 +235,7 @@ struct AddBillView: View {
                 }
             }
             .navigationTitle("Add Bill")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -52,7 +52,7 @@ struct UserProfile: Codable, Identifiable {
 
     init(id: UUID = UUID(), age: Int? = nil, country: String? = nil, currency: String = "USD",
          employmentStatus: EmploymentStatus = .unemployed, monthlyIncome: Double = 0,
-         otherIncome: [Money] = [], existingSavings: Double = 0,
+         otherIncome: [Money] = [], existingSavings: Double = 0, notes: String = "",
          riskTolerance: String = "moderate", investmentExperience: String = "beginner",
          dependents: Int = 0, maritalStatus: String? = nil, housingStatus: String? = nil,
          debtComfortLevel: String = "medium", savingsTargetPercent: Double = 20) {
@@ -64,6 +64,7 @@ struct UserProfile: Codable, Identifiable {
         self.monthlyIncome = monthlyIncome
         self.otherIncome = otherIncome
         self.existingSavings = existingSavings
+        self.notes = notes
         self.riskTolerance = riskTolerance
         self.investmentExperience = investmentExperience
         self.dependents = dependents
@@ -77,7 +78,7 @@ struct UserProfile: Codable, Identifiable {
         otherIncome.reduce(monthlyIncome) { $0 + $1.amount }
     }
 
-    enum EmploymentStatus: String, Codable {
+    enum EmploymentStatus: String, Codable, CaseIterable {
         case employed = "Employed"
         case selfEmployed = "Self-Employed"
         case student = "Student"
@@ -97,7 +98,7 @@ enum GoalTimeHorizon: String, Codable, CaseIterable {
     var localized: String { self.rawValue }
 }
 
-struct FinancialGoal: Codable, Identifiable {
+struct FinancialGoal: Codable, Identifiable, Hashable {
     let id: UUID
     var title: String
     var targetAmount: Double
@@ -107,13 +108,14 @@ struct FinancialGoal: Codable, Identifiable {
     var notes: String
 
     init(id: UUID = UUID(), title: String, targetAmount: Double, currentAmount: Double = 0,
-         horizon: GoalTimeHorizon = .yearly, targetDate: Date? = nil) {
+         horizon: GoalTimeHorizon = .yearly, targetDate: Date? = nil, notes: String = "") {
         self.id = id
         self.title = title
         self.targetAmount = targetAmount
         self.currentAmount = currentAmount
         self.horizon = horizon
         self.targetDate = targetDate
+        self.notes = notes
     }
 
     var percentComplete: Double {
@@ -246,6 +248,9 @@ enum AssetCategory: String, Codable, CaseIterable {
     case stock = "Stocks & ETFs"
     case realEstate = "Real Estate"
     case alternative = "Alternatives (Gold/Commodities)"
+
+    var localized: String { rawValue }
+    var localizedDescription: String { rawValue }
 
     var iconName: String {
         switch self {
@@ -458,6 +463,7 @@ enum AICapability: String, Codable, CaseIterable {
     case news = "News AI"
 
     var localized: String { self.rawValue }
+    var localizedDescription: String { self.rawValue }
 }
 
 struct FinancialHealthScore: Codable, Identifiable, Hashable {

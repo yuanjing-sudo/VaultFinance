@@ -4,7 +4,8 @@ import CoreML  // For Apple Foundation Models integration
 // MARK: - AI Financial Assistant Service
 // Deterministic math stays in FinanceEngine. This layer interprets and explains results.
 
-actor AIService: @unchecked Sendable {
+@MainActor
+final class AIService: ObservableObject {
     private let engine = FinanceEngine()
     private(set) var isAvailable: Bool
 
@@ -37,6 +38,20 @@ actor AIService: @unchecked Sendable {
             reply.append("- \(cat.localized): \(Money(amount: amt).formatted())\n")
         }
         return reply
+    }
+
+    /// Generate an actionable daily cash-flow summary driven by transactions and budget categories.
+    func generateDailySummary(profile: UserProfile, categories: [BudgetCategory], transactions: [Transaction]) -> String {
+        let totalSpent = max(transactions.reduce(0.0) { $0 + max($1.amount, 0) }, 0)
+        let remainingBudget = categories.reduce(0.0) { $0 + $1.remaining }
+        let savingsRate = profile.totalMonthlyIncome > 0 ? (profile.totalMonthlyIncome - totalSpent) / profile.totalMonthlyIncome * 100 : 0
+        let topCategory = categories.sorted { $0.spentAmount > $1.spentAmount }.first
+        let topLine = topCategory.map { "Your highest spending category is \($0.name), which has used \(Money(amount: $0.spentAmount).formatted())." } ?? "Your spending is currently balanced across categories."
+
+        let trend = savingsRate >= 20 ? "You're in a strong save-and-invest rhythm." : "Your cash flow is a little tight; trimming non-essential spending would help."
+        let headline = "This month has \(Money(amount: totalSpent).formatted()) in spending, with \(Money(amount: remainingBudget).formatted()) still available across your budget and a projected savings rate of \(String(format: "%.0f", savingsRate))%."
+
+        return "\(headline) \(topLine) \(trend)"
     }
 
     /// Budget recommendation based on profile + fixed needs

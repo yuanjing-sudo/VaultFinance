@@ -62,7 +62,7 @@ struct NewsFeedView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
     }
 
@@ -107,7 +107,7 @@ struct NewsRow: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray5))
+        .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
     }
 }

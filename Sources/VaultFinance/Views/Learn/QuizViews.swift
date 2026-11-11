@@ -53,7 +53,7 @@ struct QuizSession: View {
             }
             .padding()
             .navigationTitle("Quiz")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
         }
     }
 

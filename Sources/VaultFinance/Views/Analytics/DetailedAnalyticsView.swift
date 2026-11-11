@@ -25,7 +25,8 @@ struct DetailedAnalyticsView: View {
     }
 
     var cycleAnalysis: (period: Int, strength: Double) {
-        AccelerateService.shared.detectSpendingCycle(dailyAmounts: dailyAmounts)
+        let result = AccelerateService.shared.detectSpendingCycle(dailyAmounts: dailyAmounts)
+        return (period: result.dominantPeriodDays, strength: result.strength)
     }
 
     var trend: (slope: Double, intercept: Double) {
@@ -144,7 +145,7 @@ struct DetailedAnalyticsView: View {
             .padding()
         }
         .navigationTitle("Analytics")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 
     // MARK: - Subviews
@@ -162,7 +163,7 @@ struct DetailedAnalyticsView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
     }
 
@@ -172,50 +173,48 @@ struct DetailedAnalyticsView: View {
             GeometryReader { geo in
                 ZStack {
                     let points = movingAvg
-                    guard points.count > 1 else {
-                        Text("Not enough data").foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        return EmptyView()
-                    }
-                    let maxVal = points.max() ?? 1
-                    let minVal = points.min() ?? 0
-                    let range = max(maxVal - minVal, 1)
-                    let width = geo.size.width
-                    let height = geo.size.height
-                    let xStep = width / CGFloat(points.count - 1)
+                    if points.count > 1 {
+                        let maxVal = points.max() ?? 1
+                        let minVal = points.min() ?? 0
+                        let range = max(maxVal - minVal, 1)
+                        let width = geo.size.width
+                        let height = geo.size.height
+                        let xStep = width / CGFloat(points.count - 1)
 
-                    Path { path in
-                        for (i, val) in points.enumerated() {
-                            let x = CGFloat(i) * xStep
-                            let y = height - ((val - minVal) / range) * height
-                            if i == 0 {
-                                path.move(to: CGPoint(x: x, y: y))
-                            } else {
-                                path.addLine(to: CGPoint(x: x, y: y))
+                        Path { path in
+                            for (i, val) in points.enumerated() {
+                                let x = CGFloat(i) * xStep
+                                let y = height - ((val - minVal) / range) * height
+                                if i == 0 {
+                                    path.move(to: CGPoint(x: x, y: y))
+                                } else {
+                                    path.addLine(to: CGPoint(x: x, y: y))
+                                }
                             }
                         }
-                    }
-                    .stroke(Color.blue, lineWidth: 2)
+                        .stroke(Color.blue, lineWidth: 2)
 
-                    // Area fill
-                    Path { path in
-                        path.move(to: CGPoint(x: 0, y: height))
-                        for (i, val) in points.enumerated() {
-                            let x = CGFloat(i) * xStep
-                            let y = height - ((val - minVal) / range) * height
-                            path.addLine(to: CGPoint(x: x, y: y))
+                        Path { path in
+                            path.move(to: CGPoint(x: 0, y: height))
+                            for (i, val) in points.enumerated() {
+                                let x = CGFloat(i) * xStep
+                                let y = height - ((val - minVal) / range) * height
+                                path.addLine(to: CGPoint(x: x, y: y))
+                            }
+                            path.addLine(to: CGPoint(x: width, y: height))
+                            path.closeSubpath()
                         }
-                        path.addLine(to: CGPoint(x: width, y: height))
-                        path.closeSubpath()
+                        .fill(Color.blue.opacity(0.15))
+                    } else {
+                        Text("Not enough data").foregroundColor(.secondary)
                     }
-                    .fill(Color.blue.opacity(0.15))
                 }
             }
             .frame(height: 140)
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
     }
 
@@ -230,7 +229,7 @@ struct DetailedAnalyticsView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
     }
 }
