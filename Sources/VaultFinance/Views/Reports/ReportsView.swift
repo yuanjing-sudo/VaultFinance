@@ -48,7 +48,7 @@ struct ReportsView: View {
     var spendingByCategory: [(category: CategoryType, amount: Double)] {
         let grouped = Dictionary(grouping: filteredTransactions) { $0.category }
         return grouped.map { (key: $0.key, value: $0.value.reduce(0) { $0 + $1.amount }) }
-            .sorted { $0.value > $1.value }
+            .sorted(by: { $0.1 > $1.1 })
     }
 
     var netSavings: Double {
@@ -90,7 +90,7 @@ struct ReportsView: View {
                     }
                 }
                 .padding()
-                .background(Color(.systemGray6))
+                .background(Color.gray.opacity(0.08))
                 .cornerRadius(14)
 
                 // Income vs Spending bar chart
@@ -106,7 +106,7 @@ struct ReportsView: View {
                     .frame(height: 200)
                 }
                 .padding()
-                .background(Color(.systemGray6))
+                .background(Color.gray.opacity(0.08))
                 .cornerRadius(14)
 
                 // Recent transactions
@@ -123,7 +123,7 @@ struct ReportsView: View {
             .padding()
         }
         .navigationTitle("Reports")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }
 
@@ -147,7 +147,7 @@ struct ReportCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
     }
 }

@@ -125,8 +125,10 @@ class FinanceEngine: ObservableObject {
         let weights = [savingsConsistency, budgetCompliance, emergencyFund, debtManagement, goalProgress]
         let w = [25, 25, 30, 20, 15]
         guard weights.count == w.count else { return (50, [], "No data available") }
-        let weightedSum = zip(weights, w).reduce(0) { $0 + $0.0 * Double($0.1) / 100.0 }
-        var score = Int(weightedSum * 100 / w.reduce(0) { $0 + $1 })
+        let weightedSum = zip(weights, w).reduce(0.0) { partial, pair in
+            partial + (pair.0 * Double(pair.1))
+        }
+        var score = Int(weightedSum / 100.0)
 
         // Clamping
         score = min(max(score, 0), 100)

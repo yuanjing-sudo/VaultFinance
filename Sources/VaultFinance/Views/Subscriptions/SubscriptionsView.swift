@@ -61,7 +61,7 @@ struct SubscriptionsView: View {
             .padding()
         }
         .navigationTitle("Subscriptions")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .sheet(isPresented: $showingAddSubscription) {
             AddSubscriptionView()
         }
@@ -83,7 +83,7 @@ struct SubStatCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
     }
 }
@@ -129,7 +129,7 @@ struct SubscriptionRow: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color(white: 0.97))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
     }
@@ -182,7 +182,7 @@ struct AddSubscriptionView: View {
                 }
             }
             .navigationTitle("Add Subscription")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

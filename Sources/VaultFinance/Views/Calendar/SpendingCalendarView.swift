@@ -16,19 +16,27 @@ struct SpendingCalendarView: View {
 
     var streak: SpendingStreak { storage.spendingStreak }
 
+    private var currentLevel: Int { 1 + (streak.currentStreak * 10 + Int(streak.dailyGoal)) / 100 }
+    private var levelProgress: Double {
+        let raw = Double((streak.currentStreak * 10 + Int(streak.dailyGoal)) % 100)
+        return min(max(raw / 100.0, 0), 1)
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                // Streak header
+                questCard
+                    .transition(.scale.combined(with: .opacity))
+
                 streakCard
+                    .transition(.opacity.combined(with: .move(edge: .top)))
 
-                // Daily goal control
                 goalControl
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
 
-                // Calendar grid
                 calendarGrid
+                    .transition(.scale.combined(with: .opacity))
 
-                // Recent days list
                 recentDaysList
             }
             .padding()
@@ -44,6 +52,43 @@ struct SpendingCalendarView: View {
         .sheet(isPresented: $showingAdd) {
             AddSpendingDayView()
         }
+    }
+
+    private var questCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Finance Quest")
+                        .font(.headline).bold()
+                    Text("Level \(currentLevel) • " + (streak.goalMetToday ? "Quest complete" : "Keep your streak alive"))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.2))
+                        .frame(width: 52, height: 52)
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.orange)
+                }
+            }
+            ProgressView(value: levelProgress)
+                .tint(.orange)
+                .animation(.spring(response: 0.45, dampingFraction: 0.8), value: levelProgress)
+            HStack(spacing: 8) {
+                BadgePill(icon: "flame.fill", label: "XP +\(streak.currentStreak * 10)")
+                BadgePill(icon: "checkmark.seal.fill", label: streak.goalMetToday ? "Goal met" : "Goal pending")
+                BadgePill(icon: "trophy.fill", label: "Best \(streak.longestStreak)")
+            }
+            .font(.caption)
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(
+            LinearGradient(colors: [Color.orange.opacity(0.18), Color.green.opacity(0.12)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
+        .cornerRadius(16)
     }
 
     // MARK: - Streak Card
@@ -94,7 +139,7 @@ struct SpendingCalendarView: View {
                 Spacer()
             }
             .padding(8)
-            .background(Color(.systemGray6))
+            .background(Color.gray.opacity(0.08))
             .cornerRadius(10)
         }
     }
@@ -110,12 +155,14 @@ struct SpendingCalendarView: View {
                 }
                 ForEach(calendarDays, id: \.date) { dayEntry in
                     CalendarDayCell(date: dayEntry.date, spending: dayEntry.spending, isToday: dayEntry.isToday, goalMet: dayEntry.goalMet)
+                        .transition(.scale.combined(with: .opacity))
+                        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: dayEntry.goalMet)
                 }
             }
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(16)
     }
 
@@ -176,7 +223,7 @@ struct SpendingCalendarView: View {
                         }
                     }
                     .padding(.vertical, 4)
-                    .background(Color(.systemGray5))
+                    .background(Color.gray.opacity(0.12))
                     .cornerRadius(8)
                 }
             }
@@ -234,7 +281,25 @@ struct StreakPill: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(Color(.systemGray5))
+        .background(Color.gray.opacity(0.12))
+        .cornerRadius(8)
+    }
+}
+
+struct BadgePill: View {
+    let icon: String
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption2)
+            Text(label)
+                .font(.caption2)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(8)
     }
 }
@@ -285,7 +350,7 @@ struct AddSpendingDayView: View {
                 }
             }
             .navigationTitle("Record Spending")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

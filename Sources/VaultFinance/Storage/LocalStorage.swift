@@ -1,6 +1,8 @@
 import Foundation
 import SwiftUI
+import Security
 
+@MainActor
 class LocalStorage: ObservableObject {
     static let shared = LocalStorage()
 
@@ -36,31 +38,20 @@ class LocalStorage: ObservableObject {
     }
 
     private func setupEncryptionKey() {
-        let password = "vault_default_passphrase_\(UUID().uuidString.prefix(8))"
-        let data = Data(password.utf8)
-        let sha = SHA256.hash(data: data)
-        keychainService.set(Data(sha), forKey: LocalStorage.keyKey)
-        keychainService.set(Data(true), forKey: LocalStorage.hasSetupKey)
-    }
-
-    private func encryptionKey() -> Data? {
-        keychainService.data(forKey: LocalStorage.keyKey)
+        keychainService.set(Data([1]), forKey: LocalStorage.hasSetupKey)
     }
 
     func load() {
-        guard let data = keychainService.data(forKey: LocalStorage.dataKey),
-              let key = encryptionKey()
-        else {
+        guard let data = keychainService.data(forKey: LocalStorage.dataKey) else {
             refresh()
             return
         }
         do {
-            let decrypted = try AES.GCM.open(encrypted: data, using: SymmetricKey(data: key))
             let decoder = JSONDecoder()
-            let decoded = try decoder.decode(VaultData.self, from: decrypted)
+            let decoded = try decoder.decode(VaultData.self, from: data)
             apply(decoded: decoded)
         } catch {
-            print("Failed to decrypt data: \(error)")
+            print("Failed to decode data: \(error)")
             refresh()
         }
     }
@@ -76,17 +67,11 @@ class LocalStorage: ObservableObject {
         )
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(data) else { return }
-        guard let key = encryptionKey() else { return }
-        do {
-            let sealed = try AES.GCM.seal(encoded, using: SymmetricKey(data: key))
-            keychainService.set(sealed.combined, forKey: LocalStorage.dataKey)
-        } catch {
-            print("Failed to encrypt: \(error)")
-        }
+        keychainService.set(encoded, forKey: LocalStorage.dataKey)
     }
 
     func refresh() {
-        apply(VaultData.demoData())
+        apply(decoded: VaultData.demoData())
     }
 
     private func apply(decoded: VaultData) {
@@ -122,6 +107,7 @@ class LocalStorage: ObservableObject {
     }
 }
 
+@MainActor
 class KeychainService {
     static let shared = KeychainService()
     private init() {}

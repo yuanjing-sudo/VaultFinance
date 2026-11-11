@@ -78,7 +78,7 @@ struct BudgetView: View {
     private var searchBar: some View {
         TextField("Search categories", text: $searchText)
             .padding(8)
-            .background(Color(.systemGray6))
+            .background(Color.gray.opacity(0.08))
             .cornerRadius(10)
             .padding(.horizontal)
     }

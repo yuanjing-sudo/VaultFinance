@@ -11,7 +11,7 @@ import FoundationModels
 #endif
 
 actor FoundationModelsService {
-    static let shared = FoundationModelsService()
+    @MainActor static let shared = FoundationModelsService()
 
     private init() {}
 
@@ -29,7 +29,7 @@ actor FoundationModelsService {
     /// Falls back to a deterministic summary when the model is unavailable.
     func generateInsight(context: String) async -> String {
         #if canImport(FoundationModels)
-        if #available(iOS 18.0, macOS 15.0, *), isAvailable {
+        if #available(macOS 26.0, iOS 26.0, *), isAvailable {
             do {
                 let session = LanguageModelSession()
                 let response = try await session.respond(to: """

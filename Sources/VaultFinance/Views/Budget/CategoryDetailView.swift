@@ -18,9 +18,9 @@ struct CategoryDetailView: View {
                 Text(category.name).font(.title2).bold()
 
                 HStack(spacing: 16) {
-                    StatCard(label: "Budgeted", value: Money(amount: category.budgetedAmount).formatted())
-                    StatCard(label: "Spent", value: Money(amount: category.spentAmount).formatted())
-                    StatCard(label: "Remaining", value: Money(amount: category.remaining).formatted())
+                    StatCard(label: "Budgeted", value: Money(amount: category.budgetedAmount).formatted(), trend: "Plan", positive: true)
+                    StatCard(label: "Spent", value: Money(amount: category.spentAmount).formatted(), trend: category.isOverBudget ? "Over" : "On track", positive: !category.isOverBudget)
+                    StatCard(label: "Remaining", value: Money(amount: category.remaining).formatted(), trend: category.remaining >= 0 ? "Available" : "Short", positive: category.remaining >= 0)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -37,6 +37,6 @@ struct CategoryDetailView: View {
             .padding()
         }
         .navigationTitle(category.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }

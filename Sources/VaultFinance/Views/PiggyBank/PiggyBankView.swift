@@ -40,7 +40,7 @@ struct PiggyBankView: View {
             .padding()
         }
         .navigationTitle("Piggy Bank")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingEdit = true }) {
@@ -81,7 +81,7 @@ struct PiggyBankView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(16)
     }
 
@@ -126,7 +126,7 @@ struct PiggyBankView: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(Color(.systemGray4))
+                        .fill(Color.gray.opacity(0.2))
                         .frame(height: 14)
                     RoundedRectangle(cornerRadius: 6)
                         .fill(Color.piggyColor(piggy.colorTheme))
@@ -136,17 +136,17 @@ struct PiggyBankView: View {
             }
             .frame(height: 14)
             HStack {
-                Text(Money(amount: piggy.depositedAmount).formatted(in: .init(currencyCode: piggy.currency)))
+                Text(Money(amount: piggy.depositedAmount, currency: piggy.currency).formatted())
                     .font(.subheadline).bold()
                 Spacer()
-                Text("of \(Money(amount: piggy.targetAmount).formatted(in: .init(currencyCode: piggy.currency)))")
+                Text("of \(Money(amount: piggy.targetAmount, currency: piggy.currency).formatted())")
                     .font(.subheadline).foregroundColor(.secondary)
             }
             if piggy.isFull {
                 Text("🎉 Goal reached! The piggy is full!")
                     .font(.caption).bold().foregroundColor(.green)
             } else {
-                Text("\(Money(amount: piggy.remaining).formatted(in: .init(currencyCode: piggy.currency))) to go")
+                Text("\(Money(amount: piggy.remaining, currency: piggy.currency).formatted()) to go")
                     .font(.caption).foregroundColor(.secondary)
             }
         }
@@ -216,7 +216,7 @@ struct PiggyBankView: View {
             if deposits.isEmpty {
                 EmptyState(message: "No deposits yet. Feed your piggy!")
             } else {
-                ForEach(deposits.sorted { $0.date > $1.date }) { deposit in
+                ForEach(deposits.sorted { $0.date > $1.date }, id: \.id) { deposit in
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(deposit.note.isEmpty ? deposit.source.localized : deposit.note)
@@ -226,11 +226,11 @@ struct PiggyBankView: View {
                                 .font(.caption2).foregroundColor(.secondary)
                         }
                         Spacer()
-                        Text("+\(Money(amount: deposit.amount).formatted(in: .init(currencyCode: piggy.currency)))")
+                        Text("+\(Money(amount: deposit.amount, currency: piggy.currency).formatted())")
                             .font(.subheadline).bold().foregroundColor(.green)
                     }
                     .padding(.vertical, 6)
-                    .background(Color(.systemGray5))
+                    .background(Color.gray.opacity(0.12))
                     .cornerRadius(10)
                 }
             }
@@ -273,7 +273,7 @@ struct PiggyStatCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(12)
     }
 }
@@ -316,7 +316,7 @@ struct PiggyDepositView: View {
                 }
             }
             .navigationTitle("Deposit")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -395,7 +395,7 @@ struct EditPiggyView: View {
                 }
             }
             .navigationTitle("Edit Piggy")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

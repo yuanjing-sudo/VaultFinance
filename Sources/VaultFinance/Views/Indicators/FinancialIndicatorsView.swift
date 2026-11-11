@@ -102,7 +102,7 @@ struct FinancialIndicatorsView: View {
                 if !storage.goals.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Goal Countdowns").font(.headline).bold()
-                        ForEach(storage.goals) { goal in
+                        ForEach(storage.goals, id: \.id) { goal in
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
                                     Text(goal.title).font(.subheadline).bold()
@@ -110,14 +110,15 @@ struct FinancialIndicatorsView: View {
                                     Text("\(goal.percentComplete, specifier: "%.0f")%")
                                         .font(.caption).bold().foregroundColor(.blue)
                                 }
-                                if let monthly = storage.profile.totalMonthlyIncome > 0 ? storage.profile.totalMonthlyIncome * 0.2 : 0, monthly > 0 {
+                                let monthly = storage.profile.totalMonthlyIncome > 0 ? storage.profile.totalMonthlyIncome * 0.2 : 0.0
+                                if monthly > 0 {
                                     let days = FinanceEngine.daysToGoal(goal: goal, monthlyContribution: monthly)
                                     Text("Est. \(days) days to reach at \(Money(amount: monthly).formatted())/month")
                                         .font(.caption2).foregroundColor(.secondary)
                                 }
                                 GeometryReader { geo in
                                     ZStack(alignment: .leading) {
-                                        Rectangle().fill(Color(.systemGray4)).frame(height: 6).cornerRadius(3)
+                                        Rectangle().fill(Color.gray.opacity(0.2)).frame(height: 6).cornerRadius(3)
                                         Rectangle().fill(goal.percentComplete >= 100 ? Color.green : Color.blue)
                                             .frame(width: min(geo.size.width * (goal.percentComplete / 100), geo.size.width), height: 6)
                                             .cornerRadius(3)
@@ -126,13 +127,13 @@ struct FinancialIndicatorsView: View {
                                 .frame(height: 6)
                             }
                             .padding(.vertical, 4)
-                            .background(Color(.systemGray5))
+                            .background(Color.gray.opacity(0.12))
                             .cornerRadius(8)
                         }
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color(.systemGray6))
+                    .background(Color.gray.opacity(0.08))
                     .cornerRadius(16)
                 }
             }
@@ -164,7 +165,7 @@ struct IndicatorCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.08))
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)

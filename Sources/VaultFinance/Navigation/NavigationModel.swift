@@ -20,15 +20,9 @@ class NavigationModel: ObservableObject {
         }
     }
     
-    var currentDestination: String {
-        // Extract last meaningful destination from path
-        if path.isEmpty { return "Home" }
-        let last = path.last?.rawValue ?? "Home"
-        return last
-    }
-    
+    var currentDestination: String { "Home" }
+
     func navigate(to destination: String) {
-        path.append(NavigationDestination(rawValue: destination))
         updateBreadcrumbs(for: destination)
     }
     
@@ -51,14 +45,7 @@ class NavigationModel: ObservableObject {
     }
     
     private func rebuildBreadcrumbs() {
-        // Rebuild based on current path
-        breadcrumbs = []
-        var temp = "Home"
-        breadcrumbs.append(temp)
-        for destination in path.map { $0.rawValue } {
-            temp = destination
-            breadcrumbs.append(temp)
-        }
+        breadcrumbs = ["Home"]
     }
     
     func saveProfile(_ profile: UserProfile) {
@@ -130,11 +117,11 @@ class ProfileEditViewModel: ObservableObject {
     func save() {
         var profile = storage.profile
         profile.age = age > 0 ? age : nil
-        profile.totalMonthlyIncome = monthlyIncome
+        profile.monthlyIncome = monthlyIncome
         profile.employmentStatus = employmentStatus
         profile.country = country
         profile.notes = notes
-        storage.save() // This saves everything
+        storage.save()
         dismiss()
     }
 }
@@ -193,10 +180,10 @@ class SpendingCalendarViewModel: ObservableObject {
         return transactionsForDay.reduce(0) { $0 + $1.amount }
     }
     
-    func hasSpentToday: Bool {
+    func hasSpentToday() -> Bool {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        let selectedStart = calendar.startOfDay(for: selectedDate)
+        let _ = calendar.startOfDay(for: selectedDate)
         return calendar.isDate(selectedDate, inSameDayAs: today)
     }
     

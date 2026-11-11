@@ -24,11 +24,11 @@ struct SettingsView: View {
             }
             Section(header: Text("About")) {
                 Text("VaultFinance — Personal Finance Companion")
-                Text("Build budgets, track spending streaks, manage wealth, and read fresh financial news.")
+                Text("Build budgets, track spending streaks, manage recurring bills and subscriptions, monitor net worth, set savings goals, import and export transactions, and stay on top of fresh financial news with AI-powered insights, alerts, and secure account protection.")
                     .font(.caption).foregroundColor(.secondary)
             }
         }
         .navigationTitle("Settings")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }

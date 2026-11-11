@@ -82,7 +82,7 @@ enum Route: Hashable {
         case .home: return .home
         case .budget, .categoryDetail: return .budget
         case .wealth, .assetDetail: return .wealth
-        case .goals: return .budget
+        case .goals, .goalDetail: return .budget
         case .learn, .lessonDetail: return .learn
         case .calendar: return .calendar
         case .news: return .news
