@@ -1,5 +1,4 @@
 import SwiftUI
-import VaultFinance_Navigation
 
 struct ContentView: View {
     @EnvironmentObject var navigation: NavigationModel
@@ -67,7 +66,7 @@ struct ContentView: View {
                             // Quick stats grid
                             HStack(spacing: 16) {
                                 StatCard(label: "Budget", value: "\(storage.categories.count) categories", trend: "", positive: false)
-                                StatCard(label: "Goals", value: "\(storage.goals.filter(\\.isComplete).count) complete", trend: "", positive: false)
+                                StatCard(label: "Goals", value: "\(storage.goals.filter { $0.isComplete }.count) complete", trend: "", positive: false)
                                 StatCard(label: "Streak", value: "\(navigation.streakCount) day streak", trend: "", positive: false)
                             }
                             

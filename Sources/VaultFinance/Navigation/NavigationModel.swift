@@ -194,8 +194,9 @@ class SpendingCalendarViewModel: ObservableObject {
     }
     
     func hasSpentToday: Bool {
-        let today = Calendar.current.startOfDay(for: Date())
-        let selectedStart = Calendar.current.startOfDay(for: selectedDate)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedStart = calendar.startOfDay(for: selectedDate)
         return calendar.isDate(selectedDate, inSameDayAs: today)
     }
     
