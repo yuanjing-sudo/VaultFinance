@@ -1,9 +1,10 @@
 import SwiftUI
+import VaultFinance_Navigation
 
 struct HomeView: View {
     @EnvironmentObject var storage: LocalStorage
     @EnvironmentObject var aiService: AIService
-    @State private var selectedTab = 0
+    @EnvironmentObject var navigation: NavigationModel
 
     var body: some View {
         ScrollView {
