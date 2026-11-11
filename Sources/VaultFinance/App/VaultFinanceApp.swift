@@ -36,10 +36,12 @@ struct VaultFinanceApp: App {
                 ContentView()
                     .environmentObject(navigation)
                     .environmentObject(LocalStorage.shared)
+                    .environmentObject(AIService.shared)
             } else {
                 OnboardingView()
                     .environmentObject(navigation)
                     .environmentObject(LocalStorage.shared)
+                    .environmentObject(AIService.shared)
             }
         }
     }

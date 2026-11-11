@@ -8,11 +8,28 @@ struct SidebarView: View {
 
     var body: some View {
         List {
-            Section(header: Text("VaultFinance").font(.headline).bold()) {
+            Section(header: Text("Overview").font(.headline).bold()) {
                 SidebarRow(tab: .home)
+                SidebarRow(tab: .dashboard)
+                SidebarRow(tab: .search)
+            }
+            Section(header: Text("Money").font(.headline).bold()) {
                 SidebarRow(tab: .budget)
                 SidebarRow(tab: .calendar)
                 SidebarRow(tab: .wealth)
+                SidebarRow(tab: .piggyBank)
+                SidebarRow(tab: .goals)
+                SidebarRow(tab: .bills)
+                SidebarRow(tab: .subscriptions)
+            }
+            Section(header: Text("Grow").font(.headline).bold()) {
+                SidebarRow(tab: .analytics)
+                SidebarRow(tab: .reports)
+                SidebarRow(tab: .credit)
+                SidebarRow(tab: .challenges)
+                SidebarRow(tab: .markets)
+                SidebarRow(tab: .events)
+                SidebarRow(tab: .tools)
             }
             Section(header: Text("Learn & Stay Informed").font(.headline).bold()) {
                 SidebarRow(tab: .learn)
@@ -22,6 +39,7 @@ struct SidebarView: View {
             Section(header: Text("Account").font(.headline).bold()) {
                 SidebarRow(tab: .profile)
                 SidebarRow(tab: .settings)
+                SidebarRow(tab: .more)
             }
         }
         .listStyle(.sidebar)

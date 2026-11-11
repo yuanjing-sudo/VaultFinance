@@ -18,13 +18,13 @@ struct ContentView: View {
                         router: router
                     )
 
-                    TabView(selection: $router.selectedTab) {
-                        ForEach(AppRouter.Tab.allCases, id: \.self) { tab in
-                            sectionView(for: tab)
-                                .tag(tab)
-                        }
-                    }
-                    .tabViewStyle(.automatic)
+                    // Active section. The sidebar and the custom bottom bar both
+                    // drive `router.selectedTab`, so navigation is consistent and smooth.
+                    sectionView(for: router.selectedTab)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    SecondaryTabStrip()
+                    BottomTabBar()
                 }
             }
             // Deep navigation destinations driven by the router (breadcrumbs deepen here).
@@ -64,6 +64,8 @@ struct ContentView: View {
         switch tab {
         case .home:
             HomeView()
+        case .dashboard:
+            BrilliantDashboardView()
         case .budget:
             BudgetView()
         case .calendar:
@@ -78,14 +80,30 @@ struct ContentView: View {
             FinancialIndicatorsView()
         case .piggyBank:
             PiggyBankView()
+        case .goals:
+            GoalsHubView()
         case .analytics:
             DetailedAnalyticsView()
         case .bills:
             BillsView()
         case .subscriptions:
             SubscriptionsView()
+        case .credit:
+            CreditScoreView()
+        case .challenges:
+            ChallengesView()
+        case .markets:
+            WatchlistView()
+        case .events:
+            EventsView()
+        case .tools:
+            ToolsHubView()
         case .reports:
             ReportsView()
+        case .search:
+            GlobalSearchView()
+        case .more:
+            MoreView()
         case .profile:
             ProfileView()
         case .settings:

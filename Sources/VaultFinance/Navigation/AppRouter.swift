@@ -7,13 +7,14 @@ import SwiftUI
 @MainActor
 class AppRouter: ObservableObject {
     enum Tab: String, CaseIterable, Hashable, Identifiable {
-        case home, budget, calendar, wealth, learn, news, indicators, piggyBank, analytics, bills, subscriptions, reports, profile, settings
+        case home, dashboard, budget, calendar, wealth, piggyBank, goals, analytics, reports, bills, subscriptions, credit, challenges, markets, events, tools, learn, news, indicators, search, more, profile, settings
 
         var id: String { rawValue }
 
         var label: String {
             switch self {
             case .home: return "Home"
+            case .dashboard: return "Dashboard"
             case .budget: return "Budget"
             case .calendar: return "Calendar"
             case .wealth: return "Wealth"
@@ -21,10 +22,18 @@ class AppRouter: ObservableObject {
             case .news: return "News"
             case .indicators: return "Indicators"
             case .piggyBank: return "Piggy Bank"
+            case .goals: return "Goals"
             case .analytics: return "Analytics"
             case .bills: return "Bills"
             case .subscriptions: return "Subscriptions"
+            case .credit: return "Credit Score"
+            case .challenges: return "Challenges"
+            case .markets: return "Watchlist"
+            case .events: return "Money Calendar"
+            case .tools: return "Tools"
             case .reports: return "Reports"
+            case .search: return "Search"
+            case .more: return "More"
             case .profile: return "Profile"
             case .settings: return "Settings"
             }
@@ -33,6 +42,7 @@ class AppRouter: ObservableObject {
         var icon: String {
             switch self {
             case .home: return "house.fill"
+            case .dashboard: return "square.grid.2x2.fill"
             case .budget: return "list.bullet.rectangle"
             case .calendar: return "calendar"
             case .wealth: return "chart.bar.fill"
@@ -40,10 +50,18 @@ class AppRouter: ObservableObject {
             case .news: return "newspaper.fill"
             case .indicators: return "gauge"
             case .piggyBank: return "pawprint.fill"
+            case .goals: return "target"
             case .analytics: return "chart.pie.fill"
             case .bills: return "doc.fill"
             case .subscriptions: return "eyes"
+            case .credit: return "creditcard.fill"
+            case .challenges: return "flag.checkered"
+            case .markets: return "chart.line.uptrend.xyaxis"
+            case .events: return "calendar.badge.clock"
+            case .tools: return "wrench.and.screwdriver.fill"
             case .reports: return "chart.bar.doc.horizontal"
+            case .search: return "magnifyingglass"
+            case .more: return "ellipsis.circle.fill"
             case .profile: return "person.fill"
             case .settings: return "gear"
             }

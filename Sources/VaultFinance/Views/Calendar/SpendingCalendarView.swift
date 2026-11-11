@@ -38,10 +38,32 @@ struct SpendingCalendarView: View {
                     .transition(.scale.combined(with: .opacity))
 
                 recentDaysList
+
+                NavigationLink {
+                    SpendingHeatmapView()
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "square.grid.3x3.fill")
+                            .foregroundColor(VaultTheme.orange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Spending Heatmap").font(.subheadline).bold()
+                            Text("See every day at a glance").font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                    .padding(14)
+                    .background(RoundedRectangle(cornerRadius: 14)
+                        .fill(VaultTheme.orange.opacity(0.10)))
+                }
+                .buttonStyle(PressableButtonStyle())
             }
             .padding()
         }
         .navigationTitle("Spending Calendar")
+        .inlineNavigationTitle()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingAdd = true }) {
@@ -103,10 +125,15 @@ struct SpendingCalendarView: View {
                         .font(.subheadline).foregroundColor(.secondary)
                 }
                 Spacer()
-                VStack(spacing: 4) {
-                    Text("\(streak.currentStreak)")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundColor(streak.currentStreak > 0 ? .green : .secondary)
+                VStack(spacing: 0) {
+                    ZStack {
+                        AnimatedStreakFlame(streak: streak.currentStreak)
+                            .frame(width: 64, height: 64)
+                        Text("\(streak.currentStreak)")
+                            .font(.caption).bold()
+                            .foregroundColor(.white)
+                            .offset(y: 4)
+                    }
                     Text("days").font(.caption2).foregroundColor(.secondary)
                 }
             }

@@ -27,6 +27,16 @@ class LocalStorage: ObservableObject {
     @Published var piggyDeposits: [PiggyDeposit] = []
     @Published var bills: [Bill] = []
     @Published var subscriptions: [Subscription] = []
+    @Published var creditScores: [CreditScoreRecord] = []
+    @Published var taxProfile: TaxProfile = .init()
+    @Published var watchlist: [WatchlistItem] = []
+    @Published var recurringTransactions: [RecurringTransaction] = []
+    @Published var challenges: [SavingsChallenge] = []
+    @Published var financialEvents: [FinancialEvent] = []
+    @Published var netWorthSnapshots: [NetWorthSnapshot] = []
+    @Published var reminders: [Reminder] = []
+    @Published var themeSettings: AppThemeSettings = .init()
+    @Published var roundUpSettings: RoundUpSettings = .init()
 
     private var isSetup: Bool { keychainService.hasKey(forKey: LocalStorage.hasSetupKey) }
 
@@ -63,7 +73,11 @@ class LocalStorage: ObservableObject {
             lessons: lessons, achievements: achievements, healthScores: healthScores,
             spendingDays: spendingDays, spendingStreak: spendingStreak,
             piggyBank: piggyBank, piggyDeposits: piggyDeposits,
-            bills: bills, subscriptions: subscriptions
+            bills: bills, subscriptions: subscriptions,
+            creditScores: creditScores, taxProfile: taxProfile, watchlist: watchlist,
+            recurringTransactions: recurringTransactions, challenges: challenges,
+            financialEvents: financialEvents, netWorthSnapshots: netWorthSnapshots,
+            reminders: reminders, themeSettings: themeSettings, roundUpSettings: roundUpSettings
         )
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(data) else { return }
@@ -90,6 +104,16 @@ class LocalStorage: ObservableObject {
         piggyDeposits = decoded.piggyDeposits
         bills = decoded.bills
         subscriptions = decoded.subscriptions
+        creditScores = decoded.creditScores
+        taxProfile = decoded.taxProfile
+        watchlist = decoded.watchlist
+        recurringTransactions = decoded.recurringTransactions
+        challenges = decoded.challenges
+        financialEvents = decoded.financialEvents
+        netWorthSnapshots = decoded.netWorthSnapshots
+        reminders = decoded.reminders
+        themeSettings = decoded.themeSettings
+        roundUpSettings = decoded.roundUpSettings
     }
 
     /// Record spending for a day and recompute the streak.
@@ -231,6 +255,38 @@ extension VaultData {
                 .init(title: "Spotify", amount: 9.99, cycle: .monthly, nextBillingDate: Calendar.current.date(byAdding: .day, value: 10, to: now)!, category: "Entertainment", isActive: true),
                 .init(title: "Gym Membership", amount: 49.99, cycle: .monthly, nextBillingDate: Calendar.current.date(byAdding: .day, value: 15, to: now)!, category: "Health", isActive: true),
                 .init(title: "iCloud Storage", amount: 2.99, cycle: .monthly, nextBillingDate: Calendar.current.date(byAdding: .day, value: 25, to: now)!, category: "Utilities", isActive: true),
+            ],
+            creditScores: [
+                .init(date: Calendar.current.date(byAdding: .month, value: -3, to: now)!, score: 688, bureau: "Equifax"),
+                .init(date: Calendar.current.date(byAdding: .month, value: -2, to: now)!, score: 702, bureau: "Equifax"),
+                .init(date: Calendar.current.date(byAdding: .month, value: -1, to: now)!, score: 715, bureau: "Equifax"),
+                .init(date: now, score: 729, bureau: "Equifax"),
+            ],
+            watchlist: [
+                .init(symbol: "AAPL", name: "Apple Inc.", price: 229.87, changePercent: 1.2, targetPrice: 250, alertAbove: true),
+                .init(symbol: "TSLA", name: "Tesla Inc.", price: 251.44, changePercent: -2.1, targetPrice: 200, alertAbove: false),
+                .init(symbol: "VOO", name: "Vanguard S&P 500 ETF", price: 512.35, changePercent: 0.6, targetPrice: 550, alertAbove: true),
+            ],
+            challenges: [
+                .init(title: "52-Week Challenge", description: "Save $1 more each week for a year.", targetAmount: 1378, savedAmount: 276, type: .fiftyTwoWeek, daysCompleted: 23),
+                .init(title: "No-Spend Weekend", description: "Zero discretionary spending this weekend.", targetAmount: 100, savedAmount: 40, type: .noSpend, daysCompleted: 4),
+            ],
+            financialEvents: [
+                .init(title: "Paycheck", date: Calendar.current.date(byAdding: .day, value: 2, to: now)!, amount: 2500, type: .income),
+                .init(title: "Emergency Fund Goal", date: Calendar.current.date(byAdding: .month, value: 2, to: now)!, amount: 15000, type: .goal),
+                .init(title: "Credit Card Due", date: Calendar.current.date(byAdding: .day, value: 7, to: now)!, amount: 340, type: .bill),
+            ],
+            netWorthSnapshots: [
+                .init(date: Calendar.current.date(byAdding: .month, value: -5, to: now)!, assets: 28000, liabilities: 11000),
+                .init(date: Calendar.current.date(byAdding: .month, value: -4, to: now)!, assets: 29500, liabilities: 10500),
+                .init(date: Calendar.current.date(byAdding: .month, value: -3, to: now)!, assets: 30500, liabilities: 9800),
+                .init(date: Calendar.current.date(byAdding: .month, value: -2, to: now)!, assets: 32000, liabilities: 9200),
+                .init(date: Calendar.current.date(byAdding: .month, value: -1, to: now)!, assets: 33800, liabilities: 8600),
+                .init(date: now, assets: 35600, liabilities: 8000),
+            ],
+            reminders: [
+                .init(title: "Review monthly budget", date: Calendar.current.date(byAdding: .day, value: 1, to: now)!, repeatRule: .monthly),
+                .init(title: "Deposit into piggy bank", date: Calendar.current.date(byAdding: .day, value: 3, to: now)!, repeatRule: .weekly),
             ]
         )
     }

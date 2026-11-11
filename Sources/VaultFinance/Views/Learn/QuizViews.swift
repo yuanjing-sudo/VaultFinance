@@ -73,7 +73,8 @@ struct QuizSession: View {
 
     private var optionsList: some View {
         VStack(spacing: 12) {
-            ForEach(Array(questions[currentQuestionIndex].options.enumerated()), id: \.offset) { index, option in
+            ForEach(questions[currentQuestionIndex].options.indices, id: \.self) { index in
+                let option = questions[currentQuestionIndex].options[index]
                 Button(action: { selectOption(index) }) {
                     HStack {
                         Text(option)

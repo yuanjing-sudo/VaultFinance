@@ -86,23 +86,33 @@ struct PiggyBankView: View {
     }
 
     private var piggyVisual: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             ZStack {
                 // Background "bubble"
                 Circle()
                     .fill(Color.piggyColor(piggy.colorTheme).opacity(0.15))
-                    .frame(width: 220, height: 220)
+                    .frame(width: 240, height: 240)
 
-                // The piggy - scales with fatness
-                Text(piggy.levelEmoji)
-                    .font(.system(size: piggySize))
-                    .scaleEffect(piggy.fatnessScale)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.6), value: piggy.fatnessScale)
+                // Floating coin particles for extra life
+                ForEach(0..<3, id: \.self) { i in
+                    FloatingCoin(delay: Double(i) * 0.7)
+                        .offset(x: CGFloat(i - 1) * 46, y: 40)
+                }
+
+                // The custom-drawn piggy — breathes, blinks, bounces and gets fatter.
+                AnimatedPiggyBank(
+                    progress: piggy.progress,
+                    themeColor: Color.piggyColor(piggy.colorTheme),
+                    isBroken: piggy.isBroken,
+                    isCelebrating: piggy.isFull
+                )
+                .frame(width: 240, height: 210)
             }
 
-            Text("\(piggy.level.rawValue) — \(piggy.levelDescription)")
+            Text("\(piggy.levelEmoji)  \(piggy.level.rawValue) — \(piggy.levelDescription)")
                 .font(.caption)
                 .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)

@@ -17,7 +17,8 @@ struct BreadcrumbsView: View {
                     Image(systemName: "chevron.left")
                         .font(.caption2)
                         .foregroundColor(.secondary)
-                    ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                    ForEach(items.indices, id: \.self) { index in
+                        let item = items[index]
                         if index > 0 {
                             Image(systemName: "chevron.right")
                                 .font(.caption2)
