@@ -10,6 +10,7 @@ struct PiggyBankView: View {
     @State private var deposits: [PiggyDeposit]
     @State private var showingDeposit = false
     @State private var showingEdit = false
+    @State private var showingSkins = false
 
     init() {
         _piggy = State(initialValue: LocalStorage.shared.piggyBank)
@@ -42,7 +43,10 @@ struct PiggyBankView: View {
         .navigationTitle("Piggy Bank")
         .inlineNavigationTitle()
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button(action: { showingSkins = true }) {
+                    Image(systemName: "paintpalette")
+                }
                 Button(action: { showingEdit = true }) {
                     Image(systemName: "pencil")
                 }
@@ -54,6 +58,10 @@ struct PiggyBankView: View {
         .sheet(isPresented: $showingEdit) {
             EditPiggyView(piggy: $piggy)
         }
+        .sheet(isPresented: $showingSkins) {
+            PiggySkinsView()
+                .environmentObject(storage)
+        }
         .onChange(of: piggy) { _, newValue in
             storage.piggyBank = newValue
             storage.save()
@@ -61,6 +69,9 @@ struct PiggyBankView: View {
         .onChange(of: deposits) { _, newValue in
             storage.piggyDeposits = newValue
             storage.save()
+        }
+        .onChange(of: storage.piggyBank) { _, newValue in
+            if piggy != newValue { piggy = newValue }
         }
     }
 
@@ -342,6 +353,7 @@ struct PiggyDepositView: View {
         piggy.lastDepositDate = Date()
         let deposit = PiggyDeposit(piggyId: piggy.id, amount: amt, note: note, source: source)
         deposits.append(deposit)
+        FeedbackService.deposit()
 
         // Also record as a spending day entry (negative spending = saving)
         storage.recordSpending(date: Date(), amount: -amt, category: .savings, notes: note)

@@ -9,7 +9,7 @@ struct BottomTabBar: View {
     @Environment(\.colorScheme) private var scheme
 
     // The tabs shown in the bottom bar (primary destinations).
-    private let primaryTabs: [AppRouter.Tab] = [.home, .budget, .piggyBank, .calendar, .wealth]
+    private let primaryTabs: [AppRouter.Tab] = [.home, .budget, .piggyBank, .calendar, .lab]
 
     var body: some View {
         HStack(spacing: 0) {
@@ -73,7 +73,7 @@ struct SecondaryTabStrip: View {
     @EnvironmentObject var router: AppRouter
     @Environment(\.colorScheme) private var scheme
 
-    private let tabs: [AppRouter.Tab] = [.dashboard, .goals, .tools, .credit, .challenges, .markets, .events, .analytics, .reports, .bills, .subscriptions, .search, .more, .news, .indicators, .learn, .profile, .settings]
+    private let tabs: [AppRouter.Tab] = [.dashboard, .lab, .goals, .tools, .credit, .challenges, .markets, .events, .analytics, .reports, .bills, .subscriptions, .search, .more, .news, .indicators, .learn, .profile, .settings]
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {

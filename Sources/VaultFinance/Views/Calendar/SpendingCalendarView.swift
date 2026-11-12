@@ -31,6 +31,8 @@ struct SpendingCalendarView: View {
                 streakCard
                     .transition(.opacity.combined(with: .move(edge: .top)))
 
+                weeklyQuestsLink
+
                 goalControl
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
 
@@ -64,6 +66,7 @@ struct SpendingCalendarView: View {
         }
         .navigationTitle("Spending Calendar")
         .inlineNavigationTitle()
+        .onAppear { storage.ensureWeeklyQuests() }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingAdd = true }) {
@@ -151,6 +154,36 @@ struct SpendingCalendarView: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.green.opacity(0.3), lineWidth: 1)
         )
+    }
+
+    private var weeklyQuestsLink: some View {
+        NavigationLink {
+            WeeklyQuestsView()
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 11)
+                        .fill(VaultTheme.gold.opacity(0.15))
+                        .frame(width: 42, height: 42)
+                    Image(systemName: "star.circle.fill")
+                        .foregroundColor(VaultTheme.gold)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Weekly Quests").font(.subheadline).bold()
+                    Text("\(storage.weeklyQuests.filter { $0.isComplete }.count) complete · \(WealthLabEngine.availableShields(storage.streakShields)) streak shield(s)")
+                        .font(.caption2).foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption2).foregroundColor(.secondary)
+            }
+            .padding(13)
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(VaultTheme.gold.opacity(0.08))
+            )
+        }
+        .buttonStyle(PressableButtonStyle())
     }
 
     private var goalControl: some View {

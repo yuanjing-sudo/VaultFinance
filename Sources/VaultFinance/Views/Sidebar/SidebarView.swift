@@ -23,6 +23,7 @@ struct SidebarView: View {
                 SidebarRow(tab: .subscriptions)
             }
             Section(header: Text("Grow").font(.headline).bold()) {
+                SidebarRow(tab: .lab)
                 SidebarRow(tab: .analytics)
                 SidebarRow(tab: .reports)
                 SidebarRow(tab: .credit)

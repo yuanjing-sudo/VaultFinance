@@ -30,6 +30,11 @@ struct BrilliantDashboardView: View {
         return sorted.suffix(14).map { $0.amount }
     }
 
+    private var safe: SafeToSpendBreakdown {
+        WealthLabEngine.safeToSpend(profile: storage.profile, transactions: storage.transactions,
+                                    bills: storage.bills, goals: storage.goals)
+    }
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
@@ -38,6 +43,7 @@ struct BrilliantDashboardView: View {
                     heroPiggyCard
                     streakAndNetWorthRow
                     quickStatsGrid
+                    safeToSpendCard
                     spendingTrendCard
                     todayFocusCard
                     recentActivityCard
@@ -184,6 +190,51 @@ struct BrilliantDashboardView: View {
                           value: Money(amount: FinanceEngine.subscriptionMonthlyTotal(storage.subscriptions)).formatted() + "/mo",
                           icon: "eyes", color: VaultTheme.purple)
         }
+    }
+
+    // MARK: - Safe to Spend
+
+    private var safeToSpendCard: some View {
+        NavigationLink {
+            SafeToSpendView()
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    HStack(spacing: 5) {
+                        Image(systemName: "gauge.with.dots.needle.bottom.50percent")
+                        Text("SAFE TO SPEND")
+                    }
+                    .font(.caption2).bold()
+                    Spacer()
+                    Text("\(safe.daysLeftInMonth) days left")
+                        .font(.caption2)
+                }
+                .foregroundColor(.white.opacity(0.85))
+                HStack(alignment: .firstTextBaseline) {
+                    Text(Money(amount: max(safe.remainingToday, 0)).formatted())
+                        .font(.system(size: 28, weight: .heavy, design: .rounded))
+                    Text("left today")
+                        .font(.caption2).opacity(0.8)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption2).opacity(0.7)
+                }
+                .foregroundColor(.white)
+                VaultProgressBar(progress: safe.progress, height: 7,
+                                 gradient: LinearGradient(colors: [.white.opacity(0.9), .white],
+                                                          startPoint: .leading, endPoint: .trailing),
+                                 track: Color.white.opacity(0.25))
+                Text("\(Money(amount: safe.spentToday).formatted()) spent · \(Money(amount: safe.dailyAllowance).formatted()) allowance")
+                    .font(.caption2).foregroundColor(.white.opacity(0.8))
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 17, style: .continuous)
+                    .fill(safe.remainingToday >= 0 ? VaultTheme.skyGradient : VaultTheme.warningGradient)
+            )
+        }
+        .buttonStyle(PressableButtonStyle())
+        .accessibilityLabel("Safe to spend \(Money(amount: max(safe.remainingToday, 0)).formatted()) today. Open details.")
     }
 
     // MARK: - Spending Trend

@@ -16,6 +16,7 @@ struct AnimatedPiggyBank: View {
     @State private var eyeBlink: Bool = false
     @State private var wiggle: Double = 0
     @State private var coinDrop: Bool = false
+    @AppStorage("vault.reduceMotion") private var reduceMotion = false
 
     // Fatness: 0.80 (skinny) → 1.45 (very fat)
     private var fatness: CGFloat { CGFloat(0.80 + 0.65 * max(0, min(progress, 1))) }
@@ -55,8 +56,24 @@ struct AnimatedPiggyBank: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .onAppear { startBreathing() }
+        .onAppear {
+            if !reduceMotion { startBreathing() }
+        }
+        .onChange(of: reduceMotion) { _, reduced in
+            if reduced {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    breathe = 1.0
+                    bounce = 1.0
+                    wiggle = 0
+                    coinDrop = false
+                    eyeBlink = false
+                }
+            } else {
+                startBreathing()
+            }
+        }
         .onChange(of: progress) { _, _ in
+            guard !reduceMotion else { return }
             withAnimation(.spring(response: 0.35, dampingFraction: 0.4)) { bounce = 1.12 }
             coinDrop = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -84,7 +101,9 @@ struct AnimatedPiggyBank: View {
     }
 
     private func scheduleBlink() {
+        guard !reduceMotion else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 2.5...5.0)) {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 0.08)) { eyeBlink = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
                 withAnimation(.easeInOut(duration: 0.08)) { eyeBlink = false }

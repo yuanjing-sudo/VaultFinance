@@ -52,6 +52,9 @@ enum VaultTheme {
     static var skyGradient: LinearGradient {
         LinearGradient(colors: [teal, blue], startPoint: .top, endPoint: .bottom)
     }
+    static var tealGradient: LinearGradient {
+        LinearGradient(colors: [teal, green], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
 
     static func tint(for key: String) -> Color {
         switch key {

@@ -7,7 +7,7 @@ import SwiftUI
 @MainActor
 class AppRouter: ObservableObject {
     enum Tab: String, CaseIterable, Hashable, Identifiable {
-        case home, dashboard, budget, calendar, wealth, piggyBank, goals, analytics, reports, bills, subscriptions, credit, challenges, markets, events, tools, learn, news, indicators, search, more, profile, settings
+        case home, dashboard, budget, calendar, wealth, piggyBank, goals, analytics, reports, bills, subscriptions, credit, challenges, markets, events, tools, lab, learn, news, indicators, search, more, profile, settings
 
         var id: String { rawValue }
 
@@ -31,6 +31,7 @@ class AppRouter: ObservableObject {
             case .markets: return "Watchlist"
             case .events: return "Money Calendar"
             case .tools: return "Tools"
+            case .lab: return "Money Lab"
             case .reports: return "Reports"
             case .search: return "Search"
             case .more: return "More"
@@ -59,6 +60,7 @@ class AppRouter: ObservableObject {
             case .markets: return "chart.line.uptrend.xyaxis"
             case .events: return "calendar.badge.clock"
             case .tools: return "wrench.and.screwdriver.fill"
+            case .lab: return "flask.fill"
             case .reports: return "chart.bar.doc.horizontal"
             case .search: return "magnifyingglass"
             case .more: return "ellipsis.circle.fill"

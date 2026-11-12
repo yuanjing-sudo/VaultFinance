@@ -98,6 +98,8 @@ struct ContentView: View {
             EventsView()
         case .tools:
             ToolsHubView()
+        case .lab:
+            MoneyLabView()
         case .reports:
             ReportsView()
         case .search:

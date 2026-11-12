@@ -31,6 +31,18 @@ struct VaultData: Codable {
     var themeSettings: AppThemeSettings
     var roundUpSettings: RoundUpSettings
 
+    // MARK: - Wealth Lab
+    var automationRules: [AutomationRule]
+    var automationRuns: [AutomationRun]
+    var portfolioHoldings: [PortfolioHolding]
+    var taxDocuments: [TaxDocument]
+    var subscriptionReviews: [SubscriptionReview]
+    var weeklyQuests: [WeeklyQuest]
+    var streakShields: [StreakShield]
+    var buddies: [AccountabilityBuddy]
+    var buddyChallenges: [BuddyChallenge]
+    var personalizedPlan: PersonalizedPlan?
+
     init(
         profile: UserProfile,
         goals: [FinancialGoal] = [],
@@ -56,7 +68,17 @@ struct VaultData: Codable {
         netWorthSnapshots: [NetWorthSnapshot] = [],
         reminders: [Reminder] = [],
         themeSettings: AppThemeSettings = .init(),
-        roundUpSettings: RoundUpSettings = .init()
+        roundUpSettings: RoundUpSettings = .init(),
+        automationRules: [AutomationRule] = [],
+        automationRuns: [AutomationRun] = [],
+        portfolioHoldings: [PortfolioHolding] = [],
+        taxDocuments: [TaxDocument] = [],
+        subscriptionReviews: [SubscriptionReview] = [],
+        weeklyQuests: [WeeklyQuest] = [],
+        streakShields: [StreakShield] = [],
+        buddies: [AccountabilityBuddy] = [],
+        buddyChallenges: [BuddyChallenge] = [],
+        personalizedPlan: PersonalizedPlan? = nil
     ) {
         self.profile = profile
         self.goals = goals
@@ -83,6 +105,16 @@ struct VaultData: Codable {
         self.reminders = reminders
         self.themeSettings = themeSettings
         self.roundUpSettings = roundUpSettings
+        self.automationRules = automationRules
+        self.automationRuns = automationRuns
+        self.portfolioHoldings = portfolioHoldings
+        self.taxDocuments = taxDocuments
+        self.subscriptionReviews = subscriptionReviews
+        self.weeklyQuests = weeklyQuests
+        self.streakShields = streakShields
+        self.buddies = buddies
+        self.buddyChallenges = buddyChallenges
+        self.personalizedPlan = personalizedPlan
     }
 
     // MARK: - Coding Keys
@@ -93,6 +125,9 @@ struct VaultData: Codable {
              piggyDeposits, bills, subscriptions, creditScores, taxProfile, watchlist,
              recurringTransactions, challenges, financialEvents, netWorthSnapshots,
              reminders, themeSettings, roundUpSettings
+        case automationRules, automationRuns, portfolioHoldings, taxDocuments,
+             subscriptionReviews, weeklyQuests, streakShields, buddies,
+             buddyChallenges, personalizedPlan
     }
 
     // MARK: - Backward-compatible decoding
@@ -126,6 +161,16 @@ struct VaultData: Codable {
         reminders = try c.decodeIfPresent([Reminder].self, forKey: .reminders) ?? []
         themeSettings = try c.decodeIfPresent(AppThemeSettings.self, forKey: .themeSettings) ?? AppThemeSettings()
         roundUpSettings = try c.decodeIfPresent(RoundUpSettings.self, forKey: .roundUpSettings) ?? RoundUpSettings()
+        automationRules = try c.decodeIfPresent([AutomationRule].self, forKey: .automationRules) ?? []
+        automationRuns = try c.decodeIfPresent([AutomationRun].self, forKey: .automationRuns) ?? []
+        portfolioHoldings = try c.decodeIfPresent([PortfolioHolding].self, forKey: .portfolioHoldings) ?? []
+        taxDocuments = try c.decodeIfPresent([TaxDocument].self, forKey: .taxDocuments) ?? []
+        subscriptionReviews = try c.decodeIfPresent([SubscriptionReview].self, forKey: .subscriptionReviews) ?? []
+        weeklyQuests = try c.decodeIfPresent([WeeklyQuest].self, forKey: .weeklyQuests) ?? []
+        streakShields = try c.decodeIfPresent([StreakShield].self, forKey: .streakShields) ?? []
+        buddies = try c.decodeIfPresent([AccountabilityBuddy].self, forKey: .buddies) ?? []
+        buddyChallenges = try c.decodeIfPresent([BuddyChallenge].self, forKey: .buddyChallenges) ?? []
+        personalizedPlan = try c.decodeIfPresent(PersonalizedPlan.self, forKey: .personalizedPlan)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -155,5 +200,15 @@ struct VaultData: Codable {
         try c.encode(reminders, forKey: .reminders)
         try c.encode(themeSettings, forKey: .themeSettings)
         try c.encode(roundUpSettings, forKey: .roundUpSettings)
+        try c.encode(automationRules, forKey: .automationRules)
+        try c.encode(automationRuns, forKey: .automationRuns)
+        try c.encode(portfolioHoldings, forKey: .portfolioHoldings)
+        try c.encode(taxDocuments, forKey: .taxDocuments)
+        try c.encode(subscriptionReviews, forKey: .subscriptionReviews)
+        try c.encode(weeklyQuests, forKey: .weeklyQuests)
+        try c.encode(streakShields, forKey: .streakShields)
+        try c.encode(buddies, forKey: .buddies)
+        try c.encode(buddyChallenges, forKey: .buddyChallenges)
+        try c.encode(personalizedPlan, forKey: .personalizedPlan)
     }
 }

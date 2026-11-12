@@ -61,6 +61,26 @@ struct GlobalSearchView: View {
                              subtitle: "Event · \(event.date.formatted(.dateTime.month(.abbreviated).day()))",
                              icon: "calendar", color: "teal", tab: .events))
         }
+        for holding in storage.portfolioHoldings where matches(holding.symbol) || matches(holding.name) {
+            out.append(.init(title: holding.symbol,
+                             subtitle: "Holding · \(Money(amount: holding.marketValue).formatted())",
+                             icon: "chart.pie.fill", color: "green", tab: .lab))
+        }
+        for document in storage.taxDocuments where matches(document.title) {
+            out.append(.init(title: document.title,
+                             subtitle: "Tax document · \(document.kind.rawValue)",
+                             icon: document.kind.icon, color: document.kind.tint, tab: .lab))
+        }
+        for rule in storage.automationRules where matches(rule.name) {
+            out.append(.init(title: rule.name,
+                             subtitle: "Automation · \(rule.trigger.rawValue)",
+                             icon: "gearshape.2.fill", color: "blue", tab: .lab))
+        }
+        for buddy in storage.buddies where matches(buddy.name) {
+            out.append(.init(title: buddy.name,
+                             subtitle: "Buddy · \(buddy.streak)-day streak",
+                             icon: "person.2.fill", color: "orange", tab: .lab))
+        }
         return out
     }
 
@@ -164,6 +184,7 @@ struct GlobalSearchView: View {
             QuickLink(title: "Calendar", icon: "calendar", tab: .calendar),
             QuickLink(title: "Goals", icon: "target", tab: .goals),
             QuickLink(title: "Challenges", icon: "flag.checkered", tab: .challenges),
+            QuickLink(title: "Money Lab", icon: "flask.fill", tab: .lab),
             QuickLink(title: "Tools", icon: "wrench.and.screwdriver.fill", tab: .tools),
             QuickLink(title: "Credit", icon: "creditcard.fill", tab: .credit),
             QuickLink(title: "Watchlist", icon: "chart.line.uptrend.xyaxis", tab: .markets),

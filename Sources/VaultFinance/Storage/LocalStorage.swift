@@ -38,6 +38,18 @@ class LocalStorage: ObservableObject {
     @Published var themeSettings: AppThemeSettings = .init()
     @Published var roundUpSettings: RoundUpSettings = .init()
 
+    // MARK: - Wealth Lab
+    @Published var automationRules: [AutomationRule] = []
+    @Published var automationRuns: [AutomationRun] = []
+    @Published var portfolioHoldings: [PortfolioHolding] = []
+    @Published var taxDocuments: [TaxDocument] = []
+    @Published var subscriptionReviews: [SubscriptionReview] = []
+    @Published var weeklyQuests: [WeeklyQuest] = []
+    @Published var streakShields: [StreakShield] = []
+    @Published var buddies: [AccountabilityBuddy] = []
+    @Published var buddyChallenges: [BuddyChallenge] = []
+    @Published var personalizedPlan: PersonalizedPlan?
+
     private var isSetup: Bool { keychainService.hasKey(forKey: LocalStorage.hasSetupKey) }
 
     init() {
@@ -77,7 +89,12 @@ class LocalStorage: ObservableObject {
             creditScores: creditScores, taxProfile: taxProfile, watchlist: watchlist,
             recurringTransactions: recurringTransactions, challenges: challenges,
             financialEvents: financialEvents, netWorthSnapshots: netWorthSnapshots,
-            reminders: reminders, themeSettings: themeSettings, roundUpSettings: roundUpSettings
+            reminders: reminders, themeSettings: themeSettings, roundUpSettings: roundUpSettings,
+            automationRules: automationRules, automationRuns: automationRuns,
+            portfolioHoldings: portfolioHoldings, taxDocuments: taxDocuments,
+            subscriptionReviews: subscriptionReviews, weeklyQuests: weeklyQuests,
+            streakShields: streakShields, buddies: buddies,
+            buddyChallenges: buddyChallenges, personalizedPlan: personalizedPlan
         )
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(data) else { return }
@@ -114,6 +131,16 @@ class LocalStorage: ObservableObject {
         reminders = decoded.reminders
         themeSettings = decoded.themeSettings
         roundUpSettings = decoded.roundUpSettings
+        automationRules = decoded.automationRules
+        automationRuns = decoded.automationRuns
+        portfolioHoldings = decoded.portfolioHoldings
+        taxDocuments = decoded.taxDocuments
+        subscriptionReviews = decoded.subscriptionReviews
+        weeklyQuests = decoded.weeklyQuests
+        streakShields = decoded.streakShields
+        buddies = decoded.buddies
+        buddyChallenges = decoded.buddyChallenges
+        personalizedPlan = decoded.personalizedPlan
     }
 
     /// Record spending for a day and recompute the streak.
@@ -128,6 +155,126 @@ class LocalStorage: ObservableObject {
         }
         spendingStreak = SpendingStreak.compute(from: spendingDays, dailyGoal: spendingStreak.dailyGoal)
         save()
+    }
+
+    // MARK: - Weekly quests
+
+    func ensureWeeklyQuests(force: Bool = false) {
+        let weekStart = WealthLabEngine.currentWeekStart()
+        let needsRefresh = force || weeklyQuests.isEmpty
+            || weeklyQuests.contains { !Calendar.current.isDate($0.weekStart, inSameDayAs: weekStart) }
+        guard needsRefresh else { return }
+        weeklyQuests = WealthLabEngine.generateQuests(
+            spendingDays: spendingDays,
+            transactions: transactions,
+            deposits: piggyDeposits,
+            categories: categories,
+            dailyGoal: spendingStreak.dailyGoal
+        )
+        save()
+    }
+
+    func useStreakShield() -> Bool {
+        guard let index = streakShields.firstIndex(where: { !$0.isUsed }) else { return false }
+        streakShields[index].usedDate = Date()
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        let day = Calendar.current.startOfDay(for: yesterday)
+        if !spendingDays.contains(where: { Calendar.current.isDate($0.date, inSameDayAs: day) }) {
+            spendingDays.append(SpendingDay(date: day, amount: 0, transactionCount: 0,
+                                           goalMet: true, notes: "Streak shield used"))
+        }
+        spendingStreak = SpendingStreak.compute(from: spendingDays, dailyGoal: spendingStreak.dailyGoal)
+        save()
+        return true
+    }
+
+    // MARK: - Automation
+
+    @discardableResult
+    func runAutomationRules() -> Int {
+        let now = Date()
+        let calendar = Calendar.current
+        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: now)) ?? now
+        let monthTransactions = transactions.filter { $0.date >= monthStart && $0.date <= now && $0.amount > 0 }
+        let spent = monthTransactions.reduce(0) { $0 + $1.amount }
+        let budgeted = categories.reduce(0) { $0 + $1.budgetedAmount }
+        let safe = WealthLabEngine.safeToSpend(profile: profile, transactions: transactions,
+                                               bills: bills, goals: goals, now: now)
+        let weekday = calendar.component(.weekday, from: now)
+        let day = calendar.component(.day, from: now)
+        let paydayEvent = financialEvents.contains {
+            $0.type == .income && calendar.isDateInToday($0.date)
+        }
+        let billPaidToday = bills.contains { bill in
+            guard let paid = bill.lastPaidDate else { return false }
+            return calendar.isDateInToday(paid)
+        }
+
+        var generated: [AutomationRun] = []
+        for index in automationRules.indices {
+            let rule = automationRules[index]
+            var context = WealthLabEngine.AutomationContext()
+            context.isWeeklyReview = weekday == 1
+            context.isPayday = paydayEvent || day == 1 || day == 15
+            context.budgetSurplus = max(budgeted - spent, 0)
+            context.budgetOverspend = max(spent - budgeted, 0)
+            context.billPaid = billPaidToday
+            context.safeToSpend = safe.remainingToday
+            if let category = rule.category {
+                context.category = category
+                context.categorySpent = monthTransactions
+                    .filter { $0.category == category }
+                    .reduce(0) { $0 + $1.amount }
+            } else {
+                context.categorySpent = spent
+            }
+
+            guard let run = WealthLabEngine.evaluate(rule: rule, context: context, now: now) else { continue }
+            applyAutomation(action: rule.action, amount: run.amount, note: rule.name, now: now)
+            automationRules[index].lastRun = now
+            automationRules[index].runCount += 1
+            generated.append(run)
+        }
+
+        if !generated.isEmpty {
+            automationRuns.insert(contentsOf: generated, at: 0)
+            automationRuns = Array(automationRuns.prefix(50))
+            save()
+        }
+        return generated.count
+    }
+
+    private func applyAutomation(action: AutomationAction, amount: Double, note: String, now: Date) {
+        switch action {
+        case .feedPiggy:
+            guard amount > 0 else { return }
+            piggyBank.depositedAmount += amount
+            piggyBank.depositCount += 1
+            piggyBank.lastDepositDate = now
+            piggyDeposits.append(PiggyDeposit(piggyId: piggyBank.id, amount: amount,
+                                              date: now, note: "Automation: \(note)",
+                                              source: .budgetRollover))
+        case .fundGoal:
+            guard amount > 0, let index = goals.firstIndex(where: { !$0.isComplete }) else { return }
+            goals[index].currentAmount += amount
+        case .topUpBudget:
+            guard amount > 0 else { return }
+            if let index = categories.firstIndex(where: { $0.type == .wants }) {
+                categories[index].budgetedAmount += amount
+            } else if let index = categories.indices.first {
+                categories[index].budgetedAmount += amount
+            }
+        case .createReminder:
+            reminders.append(Reminder(title: "Automation: \(note)",
+                                      date: now.addingTimeInterval(86_400),
+                                      repeatRule: .none))
+        case .flagOverspend:
+            reminders.append(Reminder(title: "Check overspend — \(note)",
+                                      date: now.addingTimeInterval(3_600),
+                                      repeatRule: .none))
+        case .logNote:
+            break
+        }
     }
 }
 
@@ -287,6 +434,65 @@ extension VaultData {
             reminders: [
                 .init(title: "Review monthly budget", date: Calendar.current.date(byAdding: .day, value: 1, to: now)!, repeatRule: .monthly),
                 .init(title: "Deposit into piggy bank", date: Calendar.current.date(byAdding: .day, value: 3, to: now)!, repeatRule: .weekly),
+            ],
+            automationRules: [
+                .init(name: "Surplus to piggy", trigger: .budgetSurplus, action: .feedPiggy,
+                      amount: 25, threshold: 50, notes: "Feed the piggy when the budget is healthy."),
+                .init(name: "Payday goal boost", trigger: .payday, action: .fundGoal,
+                      amount: 100, threshold: 0, notes: "Top up the closest goal on payday."),
+                .init(name: "Weekly review nudge", trigger: .weeklyReview, action: .createReminder,
+                      amount: 0, threshold: 0, notes: "Sunday money check-in."),
+                .init(name: "Low safe-to-spend alert", trigger: .lowSafeToSpend, action: .flagOverspend,
+                      amount: 0, threshold: 20, notes: "Warn when today is nearly used up."),
+            ],
+            portfolioHoldings: [
+                .init(symbol: "VOO", name: "Vanguard S&P 500 ETF", shares: 8, averageCost: 420,
+                      currentPrice: 512.35, assetClass: "ETF", targetWeight: 40),
+                .init(symbol: "AAPL", name: "Apple Inc.", shares: 6, averageCost: 180,
+                      currentPrice: 229.87, assetClass: "Stock", targetWeight: 25),
+                .init(symbol: "BTC", name: "Bitcoin", shares: 0.15, averageCost: 40000,
+                      currentPrice: 67000, assetClass: "Crypto", targetWeight: 15),
+                .init(symbol: "CASH", name: "High-yield cash", shares: 5000, averageCost: 1,
+                      currentPrice: 1, assetClass: "Cash", targetWeight: 20),
+            ],
+            taxDocuments: [
+                .init(title: "W-2 — Acme Corp", kind: .w2, taxYear: 2025, amount: 60000,
+                      dueDate: Calendar.current.date(byAdding: .month, value: 3, to: now)!, isFiled: true),
+                .init(title: "1099 — Freelance", kind: .form1099, taxYear: 2025, amount: 4200,
+                      dueDate: Calendar.current.date(byAdding: .month, value: 3, to: now)!),
+                .init(title: "Mortgage interest", kind: .form1098, taxYear: 2025, amount: 2500,
+                      dueDate: Calendar.current.date(byAdding: .month, value: 3, to: now)!),
+                .init(title: "Home office receipts", kind: .receipt, taxYear: 2025, amount: 840),
+            ],
+            subscriptionReviews: [
+                .init(subscriptionTitle: "Netflix", monthlyCost: 15.99, verdict: .keep,
+                      lastReviewed: now, note: "Watched every week."),
+                .init(subscriptionTitle: "Spotify", monthlyCost: 9.99, verdict: .review,
+                      lastReviewed: Calendar.current.date(byAdding: .day, value: -45, to: now)!,
+                      note: "Price increased — check the family plan.", priceHikeDetected: true),
+                .init(subscriptionTitle: "Gym Membership", monthlyCost: 49.99, verdict: .cancel,
+                      lastReviewed: Calendar.current.date(byAdding: .day, value: -60, to: now)!,
+                      note: "Only visited twice this quarter."),
+            ],
+            weeklyQuests: [],
+            streakShields: [
+                .init(earnedDate: Calendar.current.date(byAdding: .day, value: -12, to: now)!, source: "7-day streak"),
+                .init(earnedDate: Calendar.current.date(byAdding: .day, value: -3, to: now)!, source: "Quest reward"),
+            ],
+            buddies: [
+                .init(name: "You", emoji: "🦊", streak: 6, weeklySaved: 120, isMe: true),
+                .init(name: "Maya", emoji: "🐼", streak: 9, weeklySaved: 95),
+                .init(name: "Noah", emoji: "🐯", streak: 4, weeklySaved: 160),
+            ],
+            buddyChallenges: [
+                .init(title: "No-spend weekend", buddyName: "Maya", target: 100,
+                      myProgress: 40, buddyProgress: 55,
+                      endsOn: Calendar.current.date(byAdding: .day, value: 3, to: now)!,
+                      reward: "Pick the next movie"),
+                .init(title: "Coffee fund sprint", buddyName: "Noah", target: 75,
+                      myProgress: 75, buddyProgress: 60,
+                      endsOn: Calendar.current.date(byAdding: .day, value: 1, to: now)!,
+                      reward: "Loser buys coffee"),
             ]
         )
     }
