@@ -205,8 +205,8 @@ extension Calendar {
 }
 
 extension Date {
-    static func +(lhs: Date, rhs: TimeInterval) -> Date { lhs + rhs }
-    static func +(lhs: Date, rhs: Date) -> Date { lhs + rhs.timeIntervalSince1970 }
+    static func +(lhs: Date, rhs: TimeInterval) -> Date { lhs.addingTimeInterval(rhs) }
+    static func +(lhs: Date, rhs: Date) -> Date { lhs.addingTimeInterval(rhs.timeIntervalSince1970) }
 
     func adding(_ months: Int) -> Date {
         Calendar.current.date(byAdding: .month, value: months, to: self) ?? self

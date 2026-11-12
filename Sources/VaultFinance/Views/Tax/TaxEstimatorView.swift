@@ -83,7 +83,7 @@ struct TaxEstimatorView: View {
         VaultCard {
             VStack(alignment: .leading, spacing: 14) {
                 VaultSectionHeader(title: "Where Your Money Goes",
-                                   subtitle: Tax year \(profile.taxYear))
+                                   subtitle: "Tax year \(profile.taxYear)")
                 HStack(spacing: 18) {
                     VaultDonutChart(
                         slices: [

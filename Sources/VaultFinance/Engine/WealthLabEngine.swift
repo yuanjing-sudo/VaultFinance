@@ -243,7 +243,7 @@ enum WealthLabEngine {
 
         return groups.compactMap { key, items -> DetectedSubscription? in
             let sorted = items.sorted { $0.date < $1.date }
-            guard sorted.count >= 2, let first = sorted.first, let last = sorted.last else { return nil }
+            guard sorted.count >= 2, let last = sorted.last else { return nil }
             let intervals = zip(sorted.dropFirst(), sorted).map {
                 $0.0.date.timeIntervalSince($0.1.date) / 86_400
             }
