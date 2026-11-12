@@ -236,7 +236,6 @@ struct SpendingCalendarView: View {
               let monthEnd = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: monthStart) else { return [] }
 
         var result: [(date: Date, spending: SpendingDay?, isToday: Bool, goalMet: Bool)] = []
-        var current = monthStart
         // Pad leading days from previous month so the 1st aligns with its weekday.
         let firstWeekday = calendar.component(.weekday, from: monthStart)
         let offset = (firstWeekday - calendar.firstWeekday + 7) % 7

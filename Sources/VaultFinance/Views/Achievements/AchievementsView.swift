@@ -8,7 +8,7 @@ struct AchievementsView: View {
 
     private var unlocked: Int { storage.achievements.filter { $0.unlocked }.count }
     private var totalXP: Int {
-        storage.achievements.filter { $0.unlocked }.reduce(0) { $0 + 50 }
+        storage.achievements.filter { $0.unlocked }.count * 50
     }
 
     var body: some View {
